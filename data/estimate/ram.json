@@ -1,0 +1,4 @@
+[
+  { "model": "Samsung DDR4 16GB", "type": "DDR4", "power": 10, "price": 60000 },
+  { "model": "Corsair DDR4 8GB", "type": "DDR4", "power": 8, "price": 35000 }
+]
