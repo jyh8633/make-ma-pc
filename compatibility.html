@@ -1,67 +1,95 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>부품 호환성 검사</title>
+<meta charset="UTF-8">
+<title>부품 호환성 검사</title>
 </head>
 <body>
-  <h1>부품 호환성 검사</h1>
-  <p>CPU와 메인보드를 선택하면 호환 여부를 보여줍니다.</p>
+<h1>부품 호환성 검사</h1>
 
-  <label>CPU:
-    <select id="cpuSelect"></select>
-  </label>
-  <br><br>
-  <label>메인보드:
-    <select id="mbSelect"></select>
-  </label>
-  <br><br>
-  <button onclick="checkCompatibility()">호환성 검사</button>
+<!-- 부품 선택 -->
+<label>CPU: <select id="cpuSelect"></select></label><br>
+<label>Board: <select id="boardSelect"></select></label><br>
+<label>RAM: <select id="ramSelect"></select></label><br>
+<label>GPU: <select id="gpuSelect"></select></label><br>
+<label>PSU: <select id="psuSelect"></select></label><br>
+<label>Case: <select id="caseSelect"></select></label><br>
+<label>Storage: <select id="storageSelect"></select></label><br>
+<label>Cooler: <select id="coolerSelect"></select></label><br><br>
 
-  <p id="result"></p>
+<button onclick="checkCompatibility()">호환성 검사</button>
+<p id="result"></p>
+<a href="index.html">← 메인으로 돌아가기</a>
 
-  <a href="index.html">← 메인으로 돌아가기</a>
+<script>
+let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[];
 
-  <script>
-    let cpus = [], mainboards = [];
+Promise.all([
+  fetch('data/compatibility/cpu.json').then(r=>r.json()),
+  fetch('data/compatibility/board.json').then(r=>r.json()),
+  fetch('data/compatibility/ram.json').then(r=>r.json()),
+  fetch('data/compatibility/gpu.json').then(r=>r.json()),
+  fetch('data/compatibility/psu.json').then(r=>r.json()),
+  fetch('data/compatibility/case.json').then(r=>r.json()),
+  fetch('data/compatibility/storage.json').then(r=>r.json()),
+  fetch('data/compatibility/cooler.json').then(r=>r.json())
+]).then(([cpuData, boardData, ramData, gpuData, psuData, caseD, storageData, coolerData])=>{
+  cpu=cpuData; board=boardData; ram=ramData; gpu=gpuData; psu=psuData; caseData=caseD; storage=storageData; cooler=coolerData;
+  fillSelect("cpuSelect", cpu);
+  fillSelect("boardSelect", board);
+  fillSelect("ramSelect", ram);
+  fillSelect("gpuSelect", gpu);
+  fillSelect("psuSelect", psu);
+  fillSelect("caseSelect", caseData);
+  fillSelect("storageSelect", storage);
+  fillSelect("coolerSelect", cooler);
+});
 
-    // CPU와 메인보드 데이터 불러오기
-    Promise.all([
-      fetch('data/cpu.json').then(r => r.json()),
-      fetch('data/mainboard.json').then(r => r.json())
-    ]).then(([cpuData, mbData]) => {
-      cpus = cpuData;
-      mainboards = mbData;
+function fillSelect(id, list){
+  const sel=document.getElementById(id);
+  list.forEach(item=>{
+    const opt=document.createElement("option");
+    opt.value=item.model;
+    opt.text=item.model;
+    sel.add(opt);
+  });
+}
 
-      const cpuSelect = document.getElementById("cpuSelect");
-      const mbSelect = document.getElementById("mbSelect");
+function checkCompatibility(){
+  const sel = {
+    cpu: cpu.find(c=>c.model===document.getElementById("cpuSelect").value),
+    board: board.find(b=>b.model===document.getElementById("boardSelect").value),
+    ram: ram.find(r=>r.model===document.getElementById("ramSelect").value),
+    gpu: gpu.find(g=>g.model===document.getElementById("gpuSelect").value),
+    psu: psu.find(p=>p.model===document.getElementById("psuSelect").value),
+    case: caseData.find(c=>c.model===document.getElementById("caseSelect").value),
+    storage: storage.find(s=>s.model===document.getElementById("storageSelect").value),
+    cooler: cooler.find(c=>c.model===document.getElementById("coolerSelect").value)
+  };
+  
+  let result="✅ 호환 가능!";
+  
+  // CPU ↔ Board
+  if(sel.cpu.socket!==sel.board.socket) result="❌ CPU와 Board 소켓 불일치";
+  // CPU ↔ RAM
+  else if(sel.ram.type!==sel.board.ramType) result="❌ RAM과 Board 호환 불가";
+  // Board ↔ Case
+  else if(sel.board.formFactor!==sel.case.formFactor) result="❌ Board와 Case 폼팩터 불일치";
+  // Case ↔ GPU
+  else if(sel.gpu.length && sel.gpu.length>sel.case.gpuMaxLength) result="❌ GPU 길이 초과";
+  // Case ↔ PSU
+  else if(sel.psu.capacity && sel.psu.capacity<calculatePower(sel)) result="❌ PSU 용량 부족";
 
-      cpus.forEach(cpu => {
-        let option = document.createElement("option");
-        option.value = cpu.socket;
-        option.text = cpu.model;
-        cpuSelect.add(option);
-      });
+  document.getElementById("result").innerText=result;
+}
 
-      mainboards.forEach(mb => {
-        let option = document.createElement("option");
-        option.value = mb.socket;
-        option.text = mb.model;
-        mbSelect.add(option);
-      });
-    });
-
-    function checkCompatibility() {
-      const cpu = document.getElementById("cpuSelect").value;
-      const mb = document.getElementById("mbSelect").value;
-      const result = document.getElementById("result");
-
-      if (cpu === mb) {
-        result.innerText = "✅ 호환 가능합니다!";
-      } else {
-        result.innerText = "❌ 호환 불가능합니다.";
-      }
-    }
-  </script>
+function calculatePower(sel){
+  let total=0;
+  ["cpu","ram","gpu","storage","cooler"].forEach(k=>{
+    if(sel[k] && sel[k].power) total+=sel[k].power;
+  });
+  return total;
+}
+</script>
 </body>
 </html>
