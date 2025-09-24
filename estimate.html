@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>AI 자동 견적</title>
+</head>
+<body>
+  <h1>AI 자동 견적</h1>
+  <p>예산을 입력하면 맞는 CPU와 메인보드를 추천합니다.</p>
+
+  <label>예산(원): 
+    <input type="number" id="budget" />
+  </label>
+  <button onclick="makeEstimate()">견적 내기</button>
+
+  <pre id="output"></pre>
+
+  <a href="index.html">← 메인으로 돌아가기</a>
+
+  <script>
+    let cpus = [], mainboards = [];
+
+    Promise.all([
+      fetch('data/cpu.json').then(r => r.json()),
+      fetch('data/mainboard.json').then(r => r.json())
+    ]).then(([cpuData, mbData]) => {
+      cpus = cpuData;
+      mainboards = mbData;
+    });
+
+    function makeEstimate() {
+      const budget = parseInt(document.getElementById("budget").value);
+      let best = null;
+
+      cpus.forEach(cpu => {
+        mainboards.forEach(mb => {
+          if (cpu.socket === mb.socket) {
+            const total = cpu.price + mb.price;
+            if (total <= budget) {
+              best = { cpu: cpu.model, mb: mb.model, total: total };
+            }
+          }
+        });
+      });
+
+      document.getElementById("output").innerText = best 
+        ? JSON.stringify(best, null, 2) 
+        : "예산에 맞는 조합이 없습니다.";
+    }
+  </script>
+</body>
+</html>
