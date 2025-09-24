@@ -1,0 +1,5 @@
+[
+  {"model":"Corsair 650W","capacity":650,"price":90000},
+  {"model":"Seasonic 750W","capacity":750,"price":120000},
+  {"model":"EVGA 850W","capacity":850,"price":140000}
+]
