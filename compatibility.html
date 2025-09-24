@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>부품 호환성 검사</title>
+</head>
+<body>
+  <h1>부품 호환성 검사</h1>
+  <p>CPU와 메인보드를 선택하면 호환 여부를 보여줍니다.</p>
+
+  <label>CPU:
+    <select id="cpuSelect"></select>
+  </label>
+  <br><br>
+  <label>메인보드:
+    <select id="mbSelect"></select>
+  </label>
+  <br><br>
+  <button onclick="checkCompatibility()">호환성 검사</button>
+
+  <p id="result"></p>
+
+  <a href="index.html">← 메인으로 돌아가기</a>
+
+  <script>
+    let cpus = [], mainboards = [];
+
+    // CPU와 메인보드 데이터 불러오기
+    Promise.all([
+      fetch('data/cpu.json').then(r => r.json()),
+      fetch('data/mainboard.json').then(r => r.json())
+    ]).then(([cpuData, mbData]) => {
+      cpus = cpuData;
+      mainboards = mbData;
+
+      const cpuSelect = document.getElementById("cpuSelect");
+      const mbSelect = document.getElementById("mbSelect");
+
+      cpus.forEach(cpu => {
+        let option = document.createElement("option");
+        option.value = cpu.socket;
+        option.text = cpu.model;
+        cpuSelect.add(option);
+      });
+
+      mainboards.forEach(mb => {
+        let option = document.createElement("option");
+        option.value = mb.socket;
+        option.text = mb.model;
+        mbSelect.add(option);
+      });
+    });
+
+    function checkCompatibility() {
+      const cpu = document.getElementById("cpuSelect").value;
+      const mb = document.getElementById("mbSelect").value;
+      const result = document.getElementById("result");
+
+      if (cpu === mb) {
+        result.innerText = "✅ 호환 가능합니다!";
+      } else {
+        result.innerText = "❌ 호환 불가능합니다.";
+      }
+    }
+  </script>
+</body>
+</html>
