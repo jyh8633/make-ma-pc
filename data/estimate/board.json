@@ -1,4 +1,5 @@
 [
-  { "model": "ASUS B660M-A", "socket": "LGA1700", "ramType": "DDR4", "formFactor": "mATX", "price": 150000 },
-  { "model": "MSI B550M PRO", "socket": "AM4", "ramType": "DDR4", "formFactor": "mATX", "price": 140000 }
+  {"model":"ASUS B660M-A","socket":"LGA1700","ramType":"DDR4","formFactor":"mATX","price":150000},
+  {"model":"MSI B660M PRO","socket":"LGA1700","ramType":"DDR4","formFactor":"mATX","price":160000},
+  {"model":"MSI B550M PRO","socket":"AM4","ramType":"DDR4","formFactor":"mATX","price":140000}
 ]
