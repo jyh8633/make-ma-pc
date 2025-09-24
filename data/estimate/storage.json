@@ -1,0 +1,5 @@
+[
+  {"model":"Samsung SSD 1TB","power":5,"price":100000},
+  {"model":"WD HDD 2TB","power":7,"price":80000},
+  {"model":"Seagate HDD 1TB","power":6,"price":70000}
+]
