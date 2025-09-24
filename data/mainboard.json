@@ -1,0 +1,4 @@
+[
+  { "model": "ASUS B660M-A", "socket": "LGA1700", "price": 150000 },
+  { "model": "MSI B450M PRO", "socket": "AM4", "price": 100000 }
+]
