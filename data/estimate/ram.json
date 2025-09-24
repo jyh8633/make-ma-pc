@@ -1,4 +1,5 @@
 [
-  { "model": "Samsung DDR4 16GB", "type": "DDR4", "power": 10, "price": 60000 },
-  { "model": "Corsair DDR4 8GB", "type": "DDR4", "power": 8, "price": 35000 }
+  {"model":"Samsung DDR4 16GB","type":"DDR4","power":10,"price":60000,"performance":30},
+  {"model":"Corsair DDR4 8GB","type":"DDR4","power":8,"price":35000,"performance":20},
+  {"model":"G.Skill DDR4 16GB","type":"DDR4","power":10,"price":65000,"performance":32}
 ]
