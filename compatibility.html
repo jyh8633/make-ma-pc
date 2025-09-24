@@ -3,6 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <title>부품 호환성 검사</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+label {
+  font-size: 20px;
+  margin: 10px 0;
+}
+
+select {
+  font-size: 18px;
+  padding: 5px 10px;
+  margin-left: 10px;
+}
+
+button {
+  font-size: 20px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 22px;
+  font-weight: bold;
+}
+</style>
 </head>
 <body>
 <h1>부품 호환성 검사</h1>
@@ -26,7 +65,7 @@ let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[]
 // JSON 로드
 Promise.all([
   fetch('data/compatibility/cpu.json').then(r=>r.json()),
-  fetch('data/compatibility/board.json').then(r=>r.json()),
+  fetch('data/compatibility/mainboard.json').then(r=>r.json()),
   fetch('data/compatibility/ram.json').then(r=>r.json()),
   fetch('data/compatibility/gpu.json').then(r=>r.json()),
   fetch('data/compatibility/psu.json').then(r=>r.json()),
@@ -47,13 +86,68 @@ Promise.all([
 
 function fillSelect(id, list){
   const sel=document.getElementById(id);
+  sel.innerHTML = '';
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.text = "-- 선택 --";
+  sel.add(defaultOption);
+
   list.forEach(item=>{
-    const opt=document.createElement("option");
-    opt.value=item.model;
-    opt.text=item.model;
+    const opt = document.createElement("option");
+    opt.value = item.model;
+    opt.text = item.model;
     sel.add(opt);
   });
 }
+
+// CPU 선택 시 Board & RAM 필터링
+document.getElementById("cpuSelect").addEventListener("change", function(){
+  const selectedCPU = cpu.find(c=>c.model===this.value);
+  
+  // Board 필터링
+  const boardSel = document.getElementById("boardSelect");
+  boardSel.innerHTML = '';
+  const defaultBoard = document.createElement("option");
+  defaultBoard.value = "";
+  defaultBoard.text = "-- 선택 --";
+  boardSel.add(defaultBoard);
+  board.forEach(b=>{
+    if(selectedCPU && b.socket!==selectedCPU.socket){
+      const opt = document.createElement("option");
+      opt.value = b.model;
+      opt.text = b.model + " (호환 불가)";
+      opt.disabled = true;
+      boardSel.add(opt);
+    } else {
+      const opt = document.createElement("option");
+      opt.value = b.model;
+      opt.text = b.model;
+      boardSel.add(opt);
+    }
+  });
+
+  // RAM 필터링
+  const ramSel = document.getElementById("ramSelect");
+  ramSel.innerHTML = '';
+  const defaultRam = document.createElement("option");
+  defaultRam.value = "";
+  defaultRam.text = "-- 선택 --";
+  ramSel.add(defaultRam);
+  ram.forEach(r=>{
+    if(selectedCPU && r.type !== "DDR4"){ // 예: CPU가 DDR4만 지원
+      const opt = document.createElement("option");
+      opt.value = r.model;
+      opt.text = r.model + " (호환 불가)";
+      opt.disabled = true;
+      ramSel.add(opt);
+    } else {
+      const opt = document.createElement("option");
+      opt.value = r.model;
+      opt.text = r.model;
+      ramSel.add(opt);
+    }
+  });
+});
 
 function checkCompatibility(){
   const sel = {
@@ -69,11 +163,11 @@ function checkCompatibility(){
   
   let result="✅ 호환 가능!";
   
-  if(sel.cpu.socket!==sel.board.socket) result="❌ CPU와 Board 소켓 불일치";
-  else if(sel.ram.type!==sel.board.ramType) result="❌ RAM과 Board 호환 불가";
-  else if(sel.board.formFactor!==sel.case.formFactor) result="❌ Board와 Case 폼팩터 불일치";
-  else if(sel.gpu.length && sel.gpu.length>sel.case.gpuMaxLength) result="❌ GPU 길이 초과";
-  else if(sel.psu.capacity && sel.psu.capacity<calculatePower(sel)) result="❌ PSU 용량 부족";
+  if(sel.cpu && sel.board && sel.cpu.socket!==sel.board.socket) result="❌ CPU와 Board 소켓 불일치";
+  else if(sel.ram && sel.board && sel.ram.type!==sel.board.ramType) result="❌ RAM과 Board 호환 불가";
+  else if(sel.board && sel.case && sel.board.formFactor!==sel.case.formFactor) result="❌ Board와 Case 폼팩터 불일치";
+  else if(sel.gpu && sel.case && sel.gpu.length>sel.case.gpuMaxLength) result="❌ GPU 길이 초과";
+  else if(sel.psu && sel.psu.capacity<calculatePower(sel)) result="❌ PSU 용량 부족";
 
   document.getElementById("result").innerText=result;
 }
