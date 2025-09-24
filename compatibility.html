@@ -60,7 +60,7 @@ let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[]
 // JSON 로드
 Promise.all([
   fetch('data/compatibility/cpu.json').then(r=>r.json()),
-  fetch('data/compatibility/mainboard.json').then(r=>r.json()),
+  fetch('data/compatibility/board.json').then(r=>r.json()),
   fetch('data/compatibility/ram.json').then(r=>r.json()),
   fetch('data/compatibility/gpu.json').then(r=>r.json()),
   fetch('data/compatibility/psu.json').then(r=>r.json()),
