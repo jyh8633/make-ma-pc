@@ -7,7 +7,6 @@
 <body>
 <h1>부품 호환성 검사</h1>
 
-<!-- 부품 선택 -->
 <label>CPU: <select id="cpuSelect"></select></label><br>
 <label>Board: <select id="boardSelect"></select></label><br>
 <label>RAM: <select id="ramSelect"></select></label><br>
@@ -24,6 +23,7 @@
 <script>
 let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[];
 
+// JSON 로드
 Promise.all([
   fetch('data/compatibility/cpu.json').then(r=>r.json()),
   fetch('data/compatibility/board.json').then(r=>r.json()),
@@ -43,7 +43,7 @@ Promise.all([
   fillSelect("caseSelect", caseData);
   fillSelect("storageSelect", storage);
   fillSelect("coolerSelect", cooler);
-});
+}).catch(e=>console.error("JSON 로드 실패:", e));
 
 function fillSelect(id, list){
   const sel=document.getElementById(id);
@@ -69,15 +69,10 @@ function checkCompatibility(){
   
   let result="✅ 호환 가능!";
   
-  // CPU ↔ Board
   if(sel.cpu.socket!==sel.board.socket) result="❌ CPU와 Board 소켓 불일치";
-  // CPU ↔ RAM
   else if(sel.ram.type!==sel.board.ramType) result="❌ RAM과 Board 호환 불가";
-  // Board ↔ Case
   else if(sel.board.formFactor!==sel.case.formFactor) result="❌ Board와 Case 폼팩터 불일치";
-  // Case ↔ GPU
   else if(sel.gpu.length && sel.gpu.length>sel.case.gpuMaxLength) result="❌ GPU 길이 초과";
-  // Case ↔ PSU
   else if(sel.psu.capacity && sel.psu.capacity<calculatePower(sel)) result="❌ PSU 용량 부족";
 
   document.getElementById("result").innerText=result;
