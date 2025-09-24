@@ -1,0 +1,4 @@
+[
+  { "model": "Intel i5-12400F", "socket": "LGA1700", "price": 180000 },
+  { "model": "AMD Ryzen 5 5600", "socket": "AM4", "price": 200000 }
+]
