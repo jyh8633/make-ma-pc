@@ -24,12 +24,15 @@ select {
   font-size: 18px;
   padding: 5px 10px;
   margin-left: 10px;
-  min-width: 250px;   /* 📌 선택창 고정 폭 */
+  width: 300px;   /* 📌 선택창 가로폭 고정 */
+}
+select option:disabled {
+  color: gray;    /* 📌 호환 불가 항목 회색 처리 */
 }
 button {
-  font-size: 20px;
-  padding: 10px 20px;
-  margin-top: 20px;
+  font-size: 18px;
+  padding: 8px 16px;
+  margin: 10px;
   cursor: pointer;
 }
 #result {
@@ -51,7 +54,11 @@ button {
 <label>Storage: <select id="storageSelect"></select></label><br>
 <label>Cooler: <select id="coolerSelect"></select></label><br><br>
 
-<button onclick="checkCompatibility()">호환성 검사</button>
+<div>
+  <button onclick="checkCompatibility()">호환성 검사</button>
+  <button onclick="resetSelections()">초기화</button>
+</div>
+
 <p id="result"></p>
 <a href="index.html">← 메인으로 돌아가기</a>
 
@@ -99,7 +106,7 @@ function fillAllSelects(){
   fillSelect("coolerSelect", cooler);
 }
 
-// 메인 필터 함수 (한 부품이 선택되면 전체 동기 업데이트)
+// 필터 함수 (부품 선택 시 동기화)
 function filterCompatibility(){
   const selected = {
     cpu: cpu.find(c=>c.model===document.getElementById("cpuSelect").value),
@@ -184,7 +191,7 @@ function filterSelect(id, list, condition){
   });
 }
 
-// 이벤트 등록 (선택 시 전체 필터링 갱신)
+// 이벤트 등록
 ["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach(id=>{
   document.getElementById(id).addEventListener("change", filterCompatibility);
 });
@@ -219,6 +226,12 @@ function calculatePower(sel){
     if(sel[k] && sel[k].power) total+=sel[k].power;
   });
   return total;
+}
+
+// 📌 초기화 버튼 기능
+function resetSelections(){
+  fillAllSelects();
+  document.getElementById("result").innerText="";
 }
 </script>
 </body>
