@@ -9,21 +9,22 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
+  margin-top: 40px;
   background-color: #f9f9f9;
 }
 h1 {
   font-size: 32px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 label {
   font-size: 20px;
-  margin: 10px 0;
+  margin: 8px 0;
 }
 select {
   font-size: 18px;
   padding: 5px 10px;
   margin-left: 10px;
+  min-width: 250px;   /* 📌 선택창 고정 폭 */
 }
 button {
   font-size: 20px;
@@ -60,7 +61,7 @@ let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[]
 // JSON 로드
 Promise.all([
   fetch('data/compatibility/cpu.json').then(r=>r.json()),
-  fetch('data/compatibility/board.json').then(r=>r.json()),
+  fetch('data/compatibility/mainboard.json').then(r=>r.json()),
   fetch('data/compatibility/ram.json').then(r=>r.json()),
   fetch('data/compatibility/gpu.json').then(r=>r.json()),
   fetch('data/compatibility/psu.json').then(r=>r.json()),
@@ -98,7 +99,7 @@ function fillAllSelects(){
   fillSelect("coolerSelect", cooler);
 }
 
-// 양방향 필터링
+// 메인 필터 함수 (한 부품이 선택되면 전체 동기 업데이트)
 function filterCompatibility(){
   const selected = {
     cpu: cpu.find(c=>c.model===document.getElementById("cpuSelect").value),
@@ -111,27 +112,54 @@ function filterCompatibility(){
     cooler: cooler.find(c=>c.model===document.getElementById("coolerSelect").value)
   };
 
-  // CPU ↔ Board ↔ RAM
-  filterSelect("cpuSelect", cpu, c=>!selected.board || c.socket===selected.board.socket);
-  filterSelect("boardSelect", board, b=>!selected.cpu || b.socket===selected.cpu.socket);
-  filterSelect("ramSelect", ram, r=>{
-    if(selected.cpu && selected.cpu.ramType) return r.type===selected.cpu.ramType;
-    if(selected.board && selected.board.ramType) return r.type===selected.board.ramType;
-    return true;
+  // CPU
+  filterSelect("cpuSelect", cpu, c=>{
+    return (!selected.board || c.socket===selected.board.socket) &&
+           (!selected.ram || c.ramType===selected.ram.type) &&
+           (!selected.cooler || selected.cooler.socket.includes(c.socket));
   });
 
-  // Board ↔ Case
-  filterSelect("boardSelect", board, b=>!selected.case || b.formFactor===selected.case.formFactor);
-  filterSelect("caseSelect", caseData, c=>!selected.board || c.formFactor===selected.board.formFactor);
+  // Board
+  filterSelect("boardSelect", board, b=>{
+    return (!selected.cpu || b.socket===selected.cpu.socket) &&
+           (!selected.ram || b.ramType===selected.ram.type) &&
+           (!selected.case || b.formFactor===selected.case.formFactor);
+  });
 
-  // Case ↔ GPU, Case ↔ PSU
-  filterSelect("gpuSelect", gpu, g=>!selected.case || g.length<=selected.case.gpuMaxLength);
-  filterSelect("psuSelect", psu, p=>!selected.case || p.capacity>=calculatePower(selected));
+  // RAM
+  filterSelect("ramSelect", ram, r=>{
+    return (!selected.cpu || r.type===selected.cpu.ramType) &&
+           (!selected.board || r.type===selected.board.ramType);
+  });
 
-  // PSU ↔ 전력량 계산
-  filterSelect("psuSelect", psu, p=>p.capacity>=calculatePower(selected));
+  // GPU
+  filterSelect("gpuSelect", gpu, g=>{
+    return (!selected.case || g.length<=selected.case.gpuMaxLength);
+  });
 
-  // Cooler, Storage는 현재 CPU/Board와 호환 체크 가능 (원하면 전력/규격 확장 가능)
+  // PSU
+  filterSelect("psuSelect", psu, p=>{
+    return p.capacity >= calculatePower(selected);
+  });
+
+  // Case
+  filterSelect("caseSelect", caseData, c=>{
+    return (!selected.board || c.formFactor===selected.board.formFactor) &&
+           (!selected.gpu || selected.gpu.length<=c.gpuMaxLength) &&
+           (!selected.cooler || selected.cooler.height<=c.coolerMaxHeight) &&
+           (!selected.storage || c.storageBays.includes(selected.storage.type));
+  });
+
+  // Storage
+  filterSelect("storageSelect", storage, s=>{
+    return (!selected.case || selected.case.storageBays.includes(s.type));
+  });
+
+  // Cooler
+  filterSelect("coolerSelect", cooler, cl=>{
+    return (!selected.cpu || cl.socket.includes(selected.cpu.socket)) &&
+           (!selected.case || cl.height<=selected.case.coolerMaxHeight);
+  });
 }
 
 function filterSelect(id, list, condition){
@@ -156,8 +184,8 @@ function filterSelect(id, list, condition){
   });
 }
 
-// 이벤트 등록
-["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect"].forEach(id=>{
+// 이벤트 등록 (선택 시 전체 필터링 갱신)
+["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach(id=>{
   document.getElementById(id).addEventListener("change", filterCompatibility);
 });
 
@@ -178,6 +206,8 @@ function checkCompatibility(){
   else if(sel.ram && sel.board && sel.ram.type!==sel.board.ramType) result="❌ RAM과 Board 호환 불가";
   else if(sel.board && sel.case && sel.board.formFactor!==sel.case.formFactor) result="❌ Board와 Case 폼팩터 불일치";
   else if(sel.gpu && sel.case && sel.gpu.length>sel.case.gpuMaxLength) result="❌ GPU 길이 초과";
+  else if(sel.cooler && sel.case && sel.cooler.height>sel.case.coolerMaxHeight) result="❌ 쿨러 높이 초과";
+  else if(sel.storage && sel.case && !sel.case.storageBays.includes(sel.storage.type)) result="❌ 저장장치 베이 부족";
   else if(sel.psu && sel.psu.capacity<calculatePower(sel)) result="❌ PSU 용량 부족";
 
   document.getElementById("result").innerText=result;
