@@ -1,5 +1,5 @@
 [
-  {"model":"Intel i5-12400F","socket":"LGA1700","power":65},
-  {"model":"Intel i7-12700F","socket":"LGA1700","power":95},
-  {"model":"AMD Ryzen 5 5600","socket":"AM4","power":65}
+  {"model":"Ryzen 5 5600","socket":"AM4","tdp":65,"memory_support":{"type":"DDR4","max_speed":3200}},
+  {"model":"Intel Core i5-12600K","socket":"LGA1700","tdp":125,"memory_support":{"type":"DDR5","max_speed":4800}},
+  {"model":"Ryzen 7 5800X","socket":"AM4","tdp":105,"memory_support":{"type":"DDR4","max_speed":3600}}
 ]
