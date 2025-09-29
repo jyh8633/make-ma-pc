@@ -1,5 +1,5 @@
 [
-  {"model":"Samsung DDR4 16GB","type":"DDR4","power":10},
-  {"model":"Corsair DDR4 8GB","type":"DDR4","power":8},
-  {"model":"G.Skill DDR4 16GB","type":"DDR4","power":10}
+  {"model":"Corsair Vengeance 16GB","type":"DDR4","speed":3200,"capacity":16,"modules":2},
+  {"model":"G.Skill Trident Z 32GB","type":"DDR5","speed":4800,"capacity":32,"modules":2},
+  {"model":"Kingston Fury 16GB","type":"DDR4","speed":3600,"capacity":16,"modules":2}
 ]
