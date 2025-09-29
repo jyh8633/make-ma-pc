@@ -1,5 +1,5 @@
 [
-  {"model":"ASUS B660M-A","socket":"LGA1700","ramType":"DDR4","formFactor":"mATX"},
-  {"model":"MSI B660M PRO","socket":"LGA1700","ramType":"DDR4","formFactor":"mATX"},
-  {"model":"MSI B550M PRO","socket":"AM4","ramType":"DDR4","formFactor":"mATX"}
+  {"model":"MSI B550 Tomahawk","socket":"AM4","memory_support":{"type":"DDR4","max_speed":4400,"slots":4,"max_capacity":128},"form_factor":"ATX"},
+  {"model":"ASUS Z690-A","socket":"LGA1700","memory_support":{"type":"DDR5","max_speed":5200,"slots":4,"max_capacity":128},"form_factor":"ATX"},
+  {"model":"Gigabyte B550 Aorus","socket":"AM4","memory_support":{"type":"DDR4","max_speed":3600,"slots":4,"max_capacity":128},"form_factor":"ATX"}
 ]
