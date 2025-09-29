@@ -45,12 +45,25 @@ Promise.all([
   fetch('data/compatibility/cooler.json').then(r=>r.json())
 ]).then(([cpuData, boardData, ramData, gpuData, psuData, caseD, storageData, coolerData])=>{
   cpu=cpuData; board=boardData; ram=ramData; gpu=gpuData; psu=psuData; caseData=caseD; storage=storageData; cooler=coolerData;
-  ["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach((id)=>{
-    fillSelect(id, eval(id.replace("Select","")));
-  });
+
+  // select id와 배열 매핑
+  const componentsMap = {
+    cpuSelect: cpu,
+    boardSelect: board,
+    ramSelect: ram,
+    gpuSelect: gpu,
+    psuSelect: psu,
+    caseSelect: caseData,
+    storageSelect: storage,
+    coolerSelect: cooler
+  };
+
+  // 선택창 채우기
+  for (let id in componentsMap) {
+    fillSelect(id, componentsMap[id]);
+  }
 });
 
-// 선택창 채우기
 function fillSelect(id, list){
   const sel=document.getElementById(id);
   list.forEach(item=>{
@@ -114,54 +127,60 @@ function getSelectedComponents(){
 function updateFilters(){
   const sel = getSelectedComponents();
 
-  // 각 부품 옵션에 대해 호환 여부 체크
-  const components = {cpu, board, ram, gpu, psu, caseData: caseData, storage, cooler};
-  const selectIds = ["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"];
+  const componentsMap = {
+    cpuSelect: cpu,
+    boardSelect: board,
+    ramSelect: ram,
+    gpuSelect: gpu,
+    psuSelect: psu,
+    caseSelect: caseData,
+    storageSelect: storage,
+    coolerSelect: cooler
+  };
 
-  selectIds.forEach(id=>{
-    const listName = id==="caseSelect"?"caseData":id.replace("Select","");
+  for (let id in componentsMap){
+    const list = componentsMap[id];
     const options = document.getElementById(id).options;
-    const items = components[listName];
 
     for(let i=0;i<options.length;i++){
       const val = options[i].value;
       if(val==="") continue;
-      const item = items.find(it=>it.model===val);
+      const item = list.find(it=>it.model===val);
       let compatible = true;
 
       // CPU ↔ Board ↔ RAM
-      if(listName==="cpu"){
+      if(id==="cpuSelect"){
         if(sel.board && item.socket!==sel.board.socket) compatible=false;
         if(sel.ram && item.memory_support.type!==sel.ram.type) compatible=false;
       }
-      if(listName==="board"){
+      if(id==="boardSelect"){
         if(sel.cpu && item.socket!==sel.cpu.socket) compatible=false;
         if(sel.ram && item.memory_support.type!==sel.ram.type) compatible=false;
         if(sel.case && !sel.case.form_factor_support.includes(item.form_factor)) compatible=false;
       }
-      if(listName==="ram"){
+      if(id==="ramSelect"){
         if(sel.cpu && item.type!==sel.cpu.memory_support.type) compatible=false;
         if(sel.board && item.type!==sel.board.memory_support.type) compatible=false;
       }
 
       // Case ↔ GPU
-      if(listName==="gpu"){
+      if(id==="gpuSelect"){
         if(sel.case && item.length_mm>sel.case.gpu_max_length_mm) compatible=false;
       }
-      if(listName==="caseData"){
+      if(id==="caseSelect"){
         if(sel.board && !item.form_factor_support.includes(sel.board.form_factor)) compatible=false;
         if(sel.gpu && sel.gpu.length_mm>item.gpu_max_length_mm) compatible=false;
       }
 
       // PSU
-      if(listName==="psu"){
+      if(id==="psuSelect"){
         if(item.wattage < calculatePower(sel)) compatible=false;
       }
 
       options[i].disabled=!compatible;
       options[i].text=compatible?item.model:item.model+" (호환 불가)";
     }
-  });
+  }
 }
 
 // 이벤트 리스너
