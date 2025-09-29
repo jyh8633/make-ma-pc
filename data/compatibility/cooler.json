@@ -1,5 +1,5 @@
 [
-  {"model":"Cooler Master Hyper 212","power":5},
-  {"model":"Noctua NH-U12S","power":6},
-  {"model":"Be Quiet! Pure Rock 2","power":6}
+  {"model":"Noctua NH-D15","tdp_support":220,"socket_support":["AM4","LGA1700"],"height_mm":165},
+  {"model":"be quiet! Dark Rock 4","tdp_support":200,"socket_support":["AM4","LGA1700"],"height_mm":162},
+  {"model":"Cooler Master Hyper 212","tdp_support":150,"socket_support":["AM4","LGA1700"],"height_mm":159}
 ]
