@@ -1,5 +1,5 @@
 [
-  {"model":"Corsair 650W","capacity":650},
-  {"model":"Seasonic 750W","capacity":750},
-  {"model":"EVGA 850W","capacity":850}
+  {"model":"Corsair RM750x","wattage":750,"connectors":{"gpu":["8-pin","6+2-pin"],"cpu":["8-pin"],"sata":8},"form_factor":"ATX"},
+  {"model":"Seasonic 650W","wattage":650,"connectors":{"gpu":["8-pin"],"cpu":["8-pin"],"sata":6},"form_factor":"ATX"},
+  {"model":"EVGA 850W","wattage":850,"connectors":{"gpu":["8-pin","6+2-pin"],"cpu":["8-pin"],"sata":10},"form_factor":"ATX"}
 ]
