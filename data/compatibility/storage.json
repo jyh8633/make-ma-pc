@@ -1,5 +1,5 @@
 [
-  {"model":"Samsung SSD 1TB","power":5},
-  {"model":"WD HDD 2TB","power":7},
-  {"model":"Seagate HDD 1TB","power":6}
+  {"model":"Samsung 970 EVO 1TB","type":"NVMe SSD","interface":"M.2","capacity":1000},
+  {"model":"WD Blue 1TB","type":"SATA SSD","interface":"SATA","capacity":1000},
+  {"model":"Seagate Barracuda 2TB","type":"HDD","interface":"SATA","capacity":2000}
 ]
