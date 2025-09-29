@@ -1,5 +1,5 @@
 [
-  {"model":"RTX 3060","length":242,"power":170},
-  {"model":"RTX 3070","length":285,"power":220},
-  {"model":"RX 6700 XT","length":267,"power":230}
+  {"model":"RTX 3070","interface":"PCIe","tdp":220,"length_mm":242,"power_connectors":["8-pin"]},
+  {"model":"RTX 3060","interface":"PCIe","tdp":170,"length_mm":242,"power_connectors":["8-pin"]},
+  {"model":"RX 6800","interface":"PCIe","tdp":250,"length_mm":267,"power_connectors":["8-pin","6+2-pin"]}
 ]
