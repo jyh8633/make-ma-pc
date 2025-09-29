@@ -1,5 +1,5 @@
 [
-  {"model":"NZXT H510","gpuMaxLength":400,"psuMaxLength":180,"formFactor":"ATX"},
-  {"model":"Cooler Master Q300L","gpuMaxLength":360,"psuMaxLength":160,"formFactor":"mATX"},
-  {"model":"Fractal Meshify C","gpuMaxLength":315,"psuMaxLength":200,"formFactor":"ATX"}
+  {"model":"NZXT H510","form_factor_support":["ATX","Micro-ATX","Mini-ITX"],"gpu_max_length_mm":381,"cpu_cooler_max_height_mm":165,"psu_max_length_mm":210},
+  {"model":"Corsair 4000D","form_factor_support":["ATX","Micro-ATX","Mini-ITX"],"gpu_max_length_mm":360,"cpu_cooler_max_height_mm":170,"psu_max_length_mm":180},
+  {"model":"Fractal Meshify C","form_factor_support":["ATX","Micro-ATX","Mini-ITX"],"gpu_max_length_mm":315,"cpu_cooler_max_height_mm":175,"psu_max_length_mm":200}
 ]
