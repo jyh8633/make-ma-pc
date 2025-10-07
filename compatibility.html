@@ -22,8 +22,8 @@
   <label>GPU: <select id="gpuSelect"><option value="">--선택--</option></select></label><br>
   <label>PSU: <select id="psuSelect"><option value="">--선택--</option></select></label><br>
   <label>Case: <select id="caseSelect"><option value="">--선택--</option></select></label><br>
-  <label>Storage: <select id="storageSelect"><option value="">--선택--</option></select></label><br>
-  <label>Cooler: <select id="coolerSelect"><option value="">--선택--</option></select></label><br>
+  <label>Storage: <select id="storageSelect"><option value="">--호환 제외--</option></select></label><br>
+  <label>Cooler: <select id="coolerSelect"><option value="">--호환 제외--</option></select></label><br>
 </div>
 
 <button onclick="checkCompatibility()">호환성 검사</button>
@@ -46,7 +46,6 @@ Promise.all([
 ]).then(([cpuData, boardData, ramData, gpuData, psuData, caseD, storageData, coolerData])=>{
   cpu=cpuData; board=boardData; ram=ramData; gpu=gpuData; psu=psuData; caseData=caseD; storage=storageData; cooler=coolerData;
 
-  // select id와 배열 매핑
   const componentsMap = {
     cpuSelect: cpu,
     boardSelect: board,
@@ -58,7 +57,6 @@ Promise.all([
     coolerSelect: cooler
   };
 
-  // 선택창 채우기
   for (let id in componentsMap) {
     fillSelect(id, componentsMap[id]);
   }
@@ -74,7 +72,6 @@ function fillSelect(id, list){
   });
 }
 
-// 초기화
 function resetSelection(){
   ["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach(id=>{
     document.getElementById(id).selectedIndex=0;
@@ -83,7 +80,6 @@ function resetSelection(){
   updateFilters();
 }
 
-// 호환성 검사
 function checkCompatibility(){
   const sel = getSelectedComponents();
   let result="✅ 호환 가능!";
@@ -98,10 +94,9 @@ function checkCompatibility(){
   document.getElementById("result").innerText=result;
 }
 
-// 총 소비 전력 계산
 function calculatePower(sel){
   let total=0;
-  ["cpu","ram","gpu","storage","cooler"].forEach(k=>{
+  ["cpu","ram","gpu"].forEach(k=>{
     if(sel[k]){
       total += sel[k].tdp || sel[k].power || 0;
     }
@@ -109,7 +104,6 @@ function calculatePower(sel){
   return total;
 }
 
-// 선택된 부품 가져오기
 function getSelectedComponents(){
   return {
     cpu: cpu.find(c=>c.model===document.getElementById("cpuSelect").value),
@@ -118,12 +112,9 @@ function getSelectedComponents(){
     gpu: gpu.find(g=>g.model===document.getElementById("gpuSelect").value),
     psu: psu.find(p=>p.model===document.getElementById("psuSelect").value),
     case: caseData.find(c=>c.model===document.getElementById("caseSelect").value),
-    storage: storage.find(s=>s.model===document.getElementById("storageSelect").value),
-    cooler: cooler.find(c=>c.model===document.getElementById("coolerSelect").value)
   };
 }
 
-// 양방향 필터링
 function updateFilters(){
   const sel = getSelectedComponents();
 
@@ -133,9 +124,7 @@ function updateFilters(){
     ramSelect: ram,
     gpuSelect: gpu,
     psuSelect: psu,
-    caseSelect: caseData,
-    storageSelect: storage,
-    coolerSelect: cooler
+    caseSelect: caseData
   };
 
   for (let id in componentsMap){
@@ -148,7 +137,6 @@ function updateFilters(){
       const item = list.find(it=>it.model===val);
       let compatible = true;
 
-      // CPU ↔ Board ↔ RAM
       if(id==="cpuSelect"){
         if(sel.board && item.socket!==sel.board.socket) compatible=false;
         if(sel.ram && item.memory_support.type!==sel.ram.type) compatible=false;
@@ -162,8 +150,6 @@ function updateFilters(){
         if(sel.cpu && item.type!==sel.cpu.memory_support.type) compatible=false;
         if(sel.board && item.type!==sel.board.memory_support.type) compatible=false;
       }
-
-      // Case ↔ GPU
       if(id==="gpuSelect"){
         if(sel.case && item.length_mm>sel.case.gpu_max_length_mm) compatible=false;
       }
@@ -171,8 +157,6 @@ function updateFilters(){
         if(sel.board && !item.form_factor_support.includes(sel.board.form_factor)) compatible=false;
         if(sel.gpu && sel.gpu.length_mm>item.gpu_max_length_mm) compatible=false;
       }
-
-      // PSU
       if(id==="psuSelect"){
         if(item.wattage < calculatePower(sel)) compatible=false;
       }
@@ -183,8 +167,7 @@ function updateFilters(){
   }
 }
 
-// 이벤트 리스너
-["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach(id=>{
+["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect"].forEach(id=>{
   document.getElementById(id).addEventListener("change", updateFilters);
 });
 </script>
