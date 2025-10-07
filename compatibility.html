@@ -1,175 +1,208 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>부품 호환성 검사</title>
-<style>
-  body { text-align: center; font-family: Arial, sans-serif; margin: 20px; }
-  h1 { font-size: 2em; margin-bottom: 20px; }
-  select { width: 320px; font-size: 1em; margin: 5px; padding: 5px; }
-  button { font-size: 1em; padding: 10px 20px; margin: 10px; }
-  #result { font-size: 1.2em; font-weight: bold; margin-top: 20px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PC 부품 호환성 검사</title>
+  <style>
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
+      padding: 30px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 700px;
+      max-width: 90%;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .part {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 100%;
+      min-width: 280px;
+      box-sizing: border-box;
+    }
+    option[disabled] {
+      color: gray;
+    }
+    button {
+      grid-column: span 2;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
+  <h1>💻 PC 부품 호환성 검사</h1>
+  <div class="container">
+    <div class="part">
+      <label for="cpu">CPU</label>
+      <select id="cpu">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="part">
+      <label for="mainboard">메인보드</label>
+      <select id="mainboard">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="part">
+      <label for="ram">RAM</label>
+      <select id="ram">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="part">
+      <label for="gpu">그래픽카드</label>
+      <select id="gpu">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="part">
+      <label for="psu">파워서플라이</label>
+      <select id="psu">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <div class="part">
+      <label for="case">케이스</label>
+      <select id="case">
+        <option value="">선택하세요</option>
+      </select>
+    </div>
+    <button id="resetBtn">모두 초기화</button>
+  </div>
 
-<h1>부품 호환성 검사</h1>
+  <script>
+    const parts = ["cpu", "mainboard", "ram", "gpu", "psu", "case"];
+    const data = {};
+    const selects = {};
 
-<div>
-  <label>CPU: <select id="cpuSelect"><option value="">--선택--</option></select></label><br>
-  <label>Board: <select id="boardSelect"><option value="">--선택--</option></select></label><br>
-  <label>RAM: <select id="ramSelect"><option value="">--선택--</option></select></label><br>
-  <label>GPU: <select id="gpuSelect"><option value="">--선택--</option></select></label><br>
-  <label>PSU: <select id="psuSelect"><option value="">--선택--</option></select></label><br>
-  <label>Case: <select id="caseSelect"><option value="">--선택--</option></select></label><br>
-  <label>Storage: <select id="storageSelect"><option value="">--호환 제외--</option></select></label><br>
-  <label>Cooler: <select id="coolerSelect"><option value="">--호환 제외--</option></select></label><br>
-</div>
+    parts.forEach((part) => {
+      selects[part] = document.getElementById(part);
+    });
 
-<button onclick="checkCompatibility()">호환성 검사</button>
-<button onclick="resetSelection()">초기화</button>
-<p id="result"></p>
-<a href="index.html">← 메인으로 돌아가기</a>
-
-<script>
-let cpu=[], board=[], ram=[], gpu=[], psu=[], caseData=[], storage=[], cooler=[];
-
-Promise.all([
-  fetch('data/compatibility/cpu.json').then(r=>r.json()),
-  fetch('data/compatibility/board.json').then(r=>r.json()),
-  fetch('data/compatibility/ram.json').then(r=>r.json()),
-  fetch('data/compatibility/gpu.json').then(r=>r.json()),
-  fetch('data/compatibility/psu.json').then(r=>r.json()),
-  fetch('data/compatibility/case.json').then(r=>r.json()),
-  fetch('data/compatibility/storage.json').then(r=>r.json()),
-  fetch('data/compatibility/cooler.json').then(r=>r.json())
-]).then(([cpuData, boardData, ramData, gpuData, psuData, caseD, storageData, coolerData])=>{
-  cpu=cpuData; board=boardData; ram=ramData; gpu=gpuData; psu=psuData; caseData=caseD; storage=storageData; cooler=coolerData;
-
-  const componentsMap = {
-    cpuSelect: cpu,
-    boardSelect: board,
-    ramSelect: ram,
-    gpuSelect: gpu,
-    psuSelect: psu,
-    caseSelect: caseData,
-    storageSelect: storage,
-    coolerSelect: cooler
-  };
-
-  for (let id in componentsMap) {
-    fillSelect(id, componentsMap[id]);
-  }
-});
-
-function fillSelect(id, list){
-  const sel=document.getElementById(id);
-  list.forEach(item=>{
-    const opt=document.createElement("option");
-    opt.value=item.model;
-    opt.text=item.model;
-    sel.add(opt);
-  });
-}
-
-function resetSelection(){
-  ["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect","storageSelect","coolerSelect"].forEach(id=>{
-    document.getElementById(id).selectedIndex=0;
-  });
-  document.getElementById("result").innerText="";
-  updateFilters();
-}
-
-function checkCompatibility(){
-  const sel = getSelectedComponents();
-  let result="✅ 호환 가능!";
-
-  if(sel.cpu && sel.board && sel.cpu.socket!==sel.board.socket) result="❌ CPU와 Board 소켓 불일치";
-  else if(sel.cpu && sel.ram && sel.cpu.memory_support.type!==sel.ram.type) result="❌ CPU와 RAM 호환 불가";
-  else if(sel.board && sel.ram && sel.board.memory_support.type!==sel.ram.type) result="❌ Board와 RAM 호환 불가";
-  else if(sel.board && sel.case && !sel.case.form_factor_support.includes(sel.board.form_factor)) result="❌ Board와 Case 폼팩터 불일치";
-  else if(sel.gpu && sel.case && sel.gpu.length_mm>sel.case.gpu_max_length_mm) result="❌ GPU 길이 초과";
-  else if(sel.psu && calculatePower(sel)>sel.psu.wattage) result="❌ PSU 용량 부족";
-
-  document.getElementById("result").innerText=result;
-}
-
-function calculatePower(sel){
-  let total=0;
-  ["cpu","ram","gpu"].forEach(k=>{
-    if(sel[k]){
-      total += sel[k].tdp || sel[k].power || 0;
+    async function loadData() {
+      for (let part of parts) {
+        const res = await fetch(`data/compatibility/${part}.json`);
+        data[part] = await res.json();
+        updateOptions(part);
+      }
     }
-  });
-  return total;
-}
 
-function getSelectedComponents(){
-  return {
-    cpu: cpu.find(c=>c.model===document.getElementById("cpuSelect").value),
-    board: board.find(b=>b.model===document.getElementById("boardSelect").value),
-    ram: ram.find(r=>r.model===document.getElementById("ramSelect").value),
-    gpu: gpu.find(g=>g.model===document.getElementById("gpuSelect").value),
-    psu: psu.find(p=>p.model===document.getElementById("psuSelect").value),
-    case: caseData.find(c=>c.model===document.getElementById("caseSelect").value),
-  };
-}
+    function updateOptions(part) {
+      const select = selects[part];
+      const selectedValues = getSelectedValues();
+      const related = checkCompatibility(selectedValues);
 
-function updateFilters(){
-  const sel = getSelectedComponents();
-
-  const componentsMap = {
-    cpuSelect: cpu,
-    boardSelect: board,
-    ramSelect: ram,
-    gpuSelect: gpu,
-    psuSelect: psu,
-    caseSelect: caseData
-  };
-
-  for (let id in componentsMap){
-    const list = componentsMap[id];
-    const options = document.getElementById(id).options;
-
-    for(let i=0;i<options.length;i++){
-      const val = options[i].value;
-      if(val==="") continue;
-      const item = list.find(it=>it.model===val);
-      let compatible = true;
-
-      if(id==="cpuSelect"){
-        if(sel.board && item.socket!==sel.board.socket) compatible=false;
-        if(sel.ram && item.memory_support.type!==sel.ram.type) compatible=false;
-      }
-      if(id==="boardSelect"){
-        if(sel.cpu && item.socket!==sel.cpu.socket) compatible=false;
-        if(sel.ram && item.memory_support.type!==sel.ram.type) compatible=false;
-        if(sel.case && !sel.case.form_factor_support.includes(item.form_factor)) compatible=false;
-      }
-      if(id==="ramSelect"){
-        if(sel.cpu && item.type!==sel.cpu.memory_support.type) compatible=false;
-        if(sel.board && item.type!==sel.board.memory_support.type) compatible=false;
-      }
-      if(id==="gpuSelect"){
-        if(sel.case && item.length_mm>sel.case.gpu_max_length_mm) compatible=false;
-      }
-      if(id==="caseSelect"){
-        if(sel.board && !item.form_factor_support.includes(sel.board.form_factor)) compatible=false;
-        if(sel.gpu && sel.gpu.length_mm>item.gpu_max_length_mm) compatible=false;
-      }
-      if(id==="psuSelect"){
-        if(item.wattage < calculatePower(sel)) compatible=false;
-      }
-
-      options[i].disabled=!compatible;
-      options[i].text=compatible?item.model:item.model+" (호환 불가)";
+      select.innerHTML = `<option value="">선택하세요</option>`;
+      data[part].forEach((item) => {
+        const compatible = related[part]?.includes(item.model);
+        const option = document.createElement("option");
+        option.value = item.model;
+        option.textContent = compatible ? item.model : `${item.model} (호환 불가)`;
+        if (!compatible) option.disabled = true;
+        select.appendChild(option);
+      });
     }
-  }
-}
 
-["cpuSelect","boardSelect","ramSelect","gpuSelect","psuSelect","caseSelect"].forEach(id=>{
-  document.getElementById(id).addEventListener("change", updateFilters);
-});
-</script>
+    function getSelectedValues() {
+      const selected = {};
+      parts.forEach((p) => {
+        const val = selects[p].value;
+        if (val) selected[p] = val;
+      });
+      return selected;
+    }
+
+    function checkCompatibility(selected) {
+      const result = {};
+      parts.forEach((p) => (result[p] = data[p].map((x) => x.model)));
+
+      // CPU <-> Mainboard <-> RAM <-> PSU 간 주요 연관성 검사
+      const cpu = data.cpu.find((x) => x.model === selected.cpu);
+      const board = data.mainboard.find((x) => x.model === selected.mainboard);
+      const ram = data.ram.find((x) => x.model === selected.ram);
+
+      if (cpu) {
+        result.mainboard = data.mainboard
+          .filter((b) => b.socket === cpu.socket)
+          .map((b) => b.model);
+        result.ram = data.ram
+          .filter((r) => r.memory_type === cpu.memory_support)
+          .map((r) => r.model);
+      }
+
+      if (board) {
+        result.cpu = data.cpu
+          .filter((c) => c.socket === board.socket)
+          .map((c) => c.model);
+        result.ram = data.ram
+          .filter((r) => r.memory_type === board.memory_support)
+          .map((r) => r.model);
+      }
+
+      if (ram) {
+        result.mainboard = data.mainboard
+          .filter((b) => b.memory_support === ram.memory_type)
+          .map((b) => b.model);
+        result.cpu = data.cpu
+          .filter((c) => c.memory_support === ram.memory_type)
+          .map((c) => c.model);
+      }
+
+      return result;
+    }
+
+    parts.forEach((part) => {
+      selects[part].addEventListener("change", () => {
+        parts.forEach((p) => updateOptions(p));
+      });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      parts.forEach((p) => {
+        selects[p].selectedIndex = 0;
+        updateOptions(p);
+      });
+    });
+
+    loadData();
+  </script>
 </body>
 </html>
